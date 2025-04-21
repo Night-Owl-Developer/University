@@ -1,0 +1,20 @@
+' схема 1
+
+@startwbs
+<style>
+  wbsDiagram {
+  .SkyBlue {
+      BackgroundColor SkyBlue
+      RoundCorner 10
+      LineThickness 0.7
+      LineColor White
+  }
+}
+</style>
+* Защита информации <<SkyBlue>>
+** математика <<SkyBlue>>
+** криптография <<SkyBlue>>
+** программирование <<SkyBlue>>
+** психология <<SkyBlue>>
+@endwbs
+

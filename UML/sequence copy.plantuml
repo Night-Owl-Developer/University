@@ -1,0 +1,100 @@
+@startuml
+actor Покупатель as Customer
+actor Работник as Worker
+participant "Терминал" as Terminal
+participant "Дисплей" as Display
+participant "Сканер" as Scanner
+participant "Принтер" as Printer
+participant "Ридер карт" as CardReader
+participant "Сервер супермаркета" as Server
+participant "Банк" as Bank
+
+autonumber
+
+Customer -> Terminal: Нажимает "Новый чек"
+Customer++
+Terminal -> Display: Показать нулевую сумму
+
+== Сканирование товаров ==
+loop Сканирование каждого товара
+    Customer -> Scanner: Подносит товар
+    Scanner -> Terminal: Передаёт штрих-код
+    Terminal -> Server: Запрос данных о товаре
+    Server -> Terminal: Наименование, цена, скидка
+    Terminal -> Display: Отобразить товар и текущую сумму
+end
+
+alt Удаление последнего товара
+    Customer -> Terminal: Нажимает "Удалить последний товар"
+    Terminal -> Display: Обновить данные чека
+end
+
+== Оплата ==
+Customer -> Terminal: Нажимает "Расплатиться"
+Terminal -> Display: Запрос на вставку карты
+Customer -> CardReader: Вставляет карту
+CardReader -> Terminal: Передаёт данные карты
+
+loop Ввод пин-кода
+    Terminal -> Customer: Запрос пин-кода
+    Customer -> Terminal: Вводит пин-код
+    alt Пин-код неверен
+        Terminal -> Display: Уведомление об ошибке
+    end
+end
+
+alt Пин-код неверен трижды
+    Terminal -> CardReader: Конфисковать карту
+    Terminal -> Display: Сообщение об аннулировании чека
+    'break'
+end
+
+Terminal -> Bank: Запрос авторизации платежа
+alt Платеж одобрен
+    Bank -> Terminal: Операция одобрена
+    Terminal -> Printer: Напечатать чек
+    Terminal -> Server: Передать данные о чеке
+    Terminal -> Display: Успешная оплата
+else Платеж отклонён
+    Bank -> Terminal: Причина отклонения
+    Terminal -> Display: Уведомление об ошибке
+    alt Новый способ оплаты
+        Customer -> CardReader: Использует другую карту
+        Terminal -> Bank: Повторный запрос авторизации
+    else Отказ от покупки
+        Terminal -> Display: Отменить чек
+    end
+end
+
+== Ограничения для алкоголя ==
+alt Добавление алкоголя с 23:00 до 8:00
+    Terminal -> Display: Уведомление о запрете
+    Terminal ->Terminal: Отказ в добавлении товара
+end
+
+== Сервисный режим ==
+Worker -> Scanner: Сканирует специальный штрих-код
+Terminal -> Worker: Запрос пин-кода
+Worker -> Terminal: Вводит пин-код
+alt Пин-код неверен
+    Terminal -> Display: Уведомление об ошибке
+else Пин-код верен
+    Terminal -> Display: Меню сервисного режима
+    loop Выполнение сервисных операций
+        Worker -> Terminal: Выбирает действие
+        alt Настройка соединений
+            Worker -> Terminal: Ввод параметров сети
+            Terminal -> Display: Успешное изменение
+        else Извлечение конфискованных карт
+            Terminal -> CardReader: Извлечь карту
+            CardReader -> Worker: Карта извлечена
+        else Диагностика устройств
+            Terminal -> CardReader: Провести диагностику
+            Terminal -> Display: Результаты диагностики
+        end
+    end
+end
+Worker -> Scanner: Сканирует штрих-код для выхода
+Terminal -> Display: Возврат в рабочий режим
+
+@enduml

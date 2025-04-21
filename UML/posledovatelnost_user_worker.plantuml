@@ -1,0 +1,32 @@
+@startuml
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+
+title "Диаграмма последовательности взаимодействия покупателя и КСО"
+
+actor Покупатель
+participant КСО
+participant Дисплей
+participant "Консоль\nввода"
+participant "Cканер\nтовара"
+database "Сервер\nмагазина"
+participant "Cканер\nкарт"
+participant "Устройство\nчтения карт"
+participant Банк
+database "Сервер\nбанка"
+participant "Cканер\nкарт"
+participant Принтер
+
+Покупатель -> КСО ++ : Нажимает "Новый чек"
+Покупатель ++
+
+КСО -> Дисплей ++ : Отобразить нулевую сумму
+
+loop Сканирование товаров
+    Покупатель -> "Cканер\nтовара" ++ : Подносит товар
+    "Cканер\nтовара" --> КСО : Передает данные штрих-кода
+    КСО -> "Сервер\nмагазина" ++ : Запрос информации о товаре
+
+end
+
+@enduml

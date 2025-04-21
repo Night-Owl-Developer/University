@@ -1,0 +1,212 @@
+@startuml
+actor Покупатель as Customer
+actor Работник as Worker
+participant "Терминал" as Terminal
+participant "Дисплей" as Display
+participant "Сканер" as Scanner
+participant "Устройство\nчтения карт" as CardReader
+participant "Сервер\nсупермаркета" as Server
+participant "Банк" as Bank
+participant "Принтер" as Printer
+
+title Диаграмма последовательности взаимодействия покупателя и работника с торговым терминалом
+== Рабочий режим ==
+
+Customer -> Terminal: Нажимает "Новый чек"
+Customer++
+Terminal++
+Terminal -> Display: Показывает нулевую сумму
+Display++
+
+== Сканирование товаров ==
+group Сканирование каждого товара
+    Customer -> Scanner: Подносит товар
+    Scanner++
+    Scanner -> Scanner: Чтение штрих-кода
+    Scanner -> Terminal: Передача данных о штрих-коде
+    Scanner--
+    Terminal -> Server: Запрос данных о товаре
+    Server++
+    Server -> Server: Обработка запроса
+    Server -> Terminal: Передача данных о товаре
+    Server--
+    |||
+    alt Добавление алкоголя с 23:00 до 8:00
+        Terminal -> Display: Уведомление о запрете
+        Terminal ->Terminal: Отказ в добавлении товара
+    end
+    |||
+    Terminal -> Display: Отображение данных о товаре и текущей суммы
+end
+|||
+group Удаление последнего товара
+    Customer -> Terminal: Нажимает "Удалить последний товар"
+    Terminal -> Terminal: Удаление товара
+    Terminal -> Display: Обновление данных о чеке
+end
+
+== Оплата ==
+Customer -> Terminal: Нажимает "Расплатиться"
+Terminal -> Display: Запрос на вставку карты
+Customer -> CardReader: Вставляет карту
+CardReader++
+CardReader -> CardReader: Чтение карты
+CardReader -> Terminal: Передача данных карты
+CardReader--
+
+group Ввод пин-кода
+    Terminal -> Display: Запрос пин-кода
+    Customer -> Terminal: Вводит пин-код
+    Terminal -> Bank: Запрос на проверку пин-кода
+    Bank++
+    Bank -> Bank: Проверка пин-кода
+    Bank -> Terminal: Передача данных о проверке пин-кода
+    |||
+    alt Пин-код неверен
+        Terminal -> Display: Уведомление об ошибке
+        Customer -> Terminal: Повторный ввод пин-кода
+        Terminal -> Bank: Запрос на проверку пин-кода
+        Bank -> Bank: Проверка пин-кода
+        Bank -> Terminal: Передача данных о проверке пин-кода
+        Terminal -> Display: Уведомление об итоге операции
+    end
+|||
+    alt Пин-код неверен трижды
+        Bank -> Terminal: Передача данных о проверке пин-кода
+        Terminal -> Display: Уведомление о конфискации карты
+        Terminal -> CardReader: Запрос на конфискацию карты
+        CardReader++
+        CardReader -> CardReader: Обработка запроса
+        CardReader -> Terminal: Конфискация карты
+        CardReader--
+        Terminal -> Server: Запрос об аннулировании чека
+        Server++
+        Server -> Server: Обработка запроса
+        Server -> Terminal: Запрос выполнен
+        Server--
+        Terminal -> Display: Уведомление об аннулировании чека
+    end
+end
+|||
+group Получение чека об оплате
+    Terminal -> Bank: Запрос авторизации платежа
+    Bank -> Bank: Обработка запроса
+
+    alt Платеж одобрен
+        Bank -> Terminal: Операция одобрена
+        Terminal -> Server: Передача данных о чеке
+        Server++
+        Server -> Server: Сохранение данных о чеке
+        Server -> Terminal: Передача данных о выполненном запросе
+        Server--
+        |||
+        Terminal -> Printer: Запрос на печатать чека
+        Printer++
+        Terminal --> Display: Уведомление о печати чека
+        Printer -> Printer: Обработка запроса
+        Printer -> Terminal: Запрос обработан
+        Printer--
+        Terminal -> Display: Уведомление "Чек распечатан"
+        Terminal -> Display: Уведомление об успешной оплате
+        |||
+    else Платеж отклонён
+        Bank -> Terminal: Причина отклонения
+        Bank--
+        Terminal -> Display: Уведомление об ошибке
+        |||
+        group Новый способ оплаты
+            Customer -> Terminal: Повторная оплата
+            Terminal --> Display: Запрос на вставку карты
+            Customer -> CardReader: Вставляет карту
+            CardReader++
+            CardReader -> CardReader: Чтение карты
+            CardReader --> Terminal: Передача данных карты
+            CardReader--
+            |||
+            alt Ввод пин-кода
+                Terminal -> Display: Запрос пин-кода
+                Customer -> Terminal: Вводит пин-код
+                Terminal -> Bank: Запрос на проверку пин-кода
+                Bank++
+                Bank -> Bank: Проверка пин-кода
+                Bank -> Terminal: Передача данных о проверке пин-кода
+            end
+            |||
+            Terminal -> Bank: Повторный запрос авторизации
+            Bank -> Bank: Обработка запроса
+            Bank -> Terminal: Передача данных о выполнении запроса
+            Bank--
+        end
+    end
+    |||
+    Terminal -> Display: Уведомление об успешной оплате
+    Terminal -> Display: Готов к новым покупкам
+    note over Customer: Уходит с покупками
+end
+Customer--
+|||
+== Сервисный режим ==
+Worker -> Scanner: Сканирует специальный штрих-код
+Worker++
+Scanner++
+Scanner -> Scanner: Чтение штрих-кода
+Scanner -> Terminal: Передача данных о штрих-коде
+Scanner--
+Terminal -> Server: Запрос данных о сотруднике
+Server++
+Server -> Server: Обработка запроса
+Server -> Terminal: Передача данных о сотруднике
+Server--
+Terminal -> Display: Запрос пин-кода
+Worker -> Terminal: Вводит пин-код
+Terminal -> Server: Запрос на проверку пин-кода
+Server++
+Server -> Server: Обработка запроса
+Server -> Terminal: Передача данных о проверке пин-кода
+Server--
+alt Пин-код неверен
+    Terminal -> Display: Уведомление об ошибке
+    Worker -> Terminal: Повторят действия со штрих-кодом и пин-кодом
+else Пин-код верен
+    Terminal -> Display: Меню сервисного режима
+    loop Выполнение сервисных операций
+        Worker -> Terminal: Выбирает действие
+        alt Настройка соединений
+            Worker -> Terminal: Ввод параметров сети
+            Terminal -> Display: Успешное изменение
+        else Извлечение конфискованных карт
+            Terminal -> CardReader: Извлечь карту
+            CardReader++
+            CardReader -> CardReader: Обработка запроса
+            CardReader -> Worker: Карта извлечена
+            CardReader--
+        else Диагностика устройств
+            Terminal -> Server: Провести диагностику
+            Server++
+            Server -> Server: Проведение диагностики
+            Server -> Terminal: Передача данных о диагностике
+            Server--
+            Terminal -> Display: Результаты диагностики
+        end
+    end
+end
+Worker -> Scanner: Сканирует штрих-код для выхода
+Scanner++
+Scanner -> Scanner: Чтение штрих-кода
+Scanner -> Terminal: Передача данных о штрих-коде
+Scanner--
+Terminal -> Server: Запрос данных о сотруднике
+Server++
+Server -> Server: Обработка запроса
+Server -> Terminal: Передача данных о сотруднике
+Server--
+Terminal -> Display: Уведомление о завершении режима
+Worker -> Terminal: Подтверждает завершение режима
+Worker--
+Terminal -> Display: Возврат в рабочий режим
+
+Display--
+Terminal--
+Scanner--
+
+@enduml

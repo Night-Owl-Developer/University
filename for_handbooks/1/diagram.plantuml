@@ -1,0 +1,97 @@
+@startwbs
+<style>
+  wbsDiagram {
+  .SkyBlue {
+      BackgroundColor SkyBlue
+      RoundCorner 10
+      LineThickness 0.7
+      LineColor White
+  }
+}
+</style>
+* Защита информации <<SkyBlue>>
+** математика <<SkyBlue>>
+** криптография <<SkyBlue>>
+** программирование <<SkyBlue>>
+** психология <<SkyBlue>>
+@endwbs
+
+
+----
+
+
+@startwbs
+<style>
+  wbsDiagram {
+  .SkyBlue {
+      BackgroundColor SkyBlue
+      RoundCorner 10
+      LineThickness 0.7
+      LineColor White
+  }
+}
+</style>
+* Информационная сфера <<SkyBlue>>
+** информационно-\nтехническая\nсфера <<SkyBlue>>
+** сфера защиты от\nдеструктивной\nинформации <<SkyBlue>>
+** информационно-\nпсихологическая\nсфера <<SkyBlue>>
+@endwbs
+
+
+----
+
+
+@startmindmap
+<style>
+  wbsDiagram {
+  .SkyBlue {
+      BackgroundColor SkyBlue
+      RoundCorner 10
+      LineThickness 0.7
+      LineColor White
+  }
+}
+</style>
+* Стандартная модель безопасности <<SkyBlue>>
+** конфиденциальность\n(confidentiality) <<SkyBlue>>
+** целостность\n(integrity) <<SkyBlue>>
+** доступность\n(availability) <<SkyBlue>>
+@endmindmap
+
+----
+
+@startmindmap
+* Составляющие ИБ
+** законодательная, нормативно-правовая и научная база
+** структура и задачи органов, обеспечивающих безопасность ИТ
+** организационно-технические и режимные меры и методы (Политика ИБ)
+** программно-технические способы и средства обеспечения ИБ
+@endmindmap
+
+
+----
+
+
+@startwbs
+!theme vibrant
+<style>
+  wbsDiagram {
+  .SkyBlue {
+      BackgroundColor SkyBlue
+      RoundCorner 5
+      LineThickness 0.7
+      LineColor White
+  }
+}
+</style>
+* Нормативно-методические документы <<SkyBlue>>
+** Методические документы гос. органов <<SkyBlue>>
+*** Доктрина информационной безопасности РФ
+*** Руководящие документы ФСТЭК\n(Гостехкомиссии России)
+*** Приказы ФСБ
+** Стандарты информационной безопасности <<SkyBlue>>
+*** Международные стандарты
+*** Государственные (нац) стандарты РФ
+*** Рекомендации по стандартизации
+*** Методические указания
+@endwbs

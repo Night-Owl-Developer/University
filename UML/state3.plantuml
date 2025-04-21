@@ -1,0 +1,61 @@
+@startuml
+state EmergencyStop as "Аварийная остановка"
+state UpdateSettings as "Обновление данных"
+state ShowingTime as "Отображение\nвремени"
+state ShowingTemperature as "Отображение\nтемпературы"
+state ShowingStationInfo as "Отображение информации\nо станции"
+state ShowingAd as "Показать рекламу"
+state ShowCurrentStation as "Показать текущую станцию"
+state ShowTransferOptions as "Показать варианты перевода"
+state ShowNextStation as "Показать\nследующую станцию"
+state ShowDestination as "Показать\nпункт назначения"
+state ShowTransferOptions as "Показать\nварианты перевода"
+state EndMessage as "Отправить сообщение"
+state Idle as "Бездействие"
+state EmergencyStop as "Аварийная остановка"
+state UpdateSettings as "Обновление данных"
+state Ready as "Готов"
+
+[*] --> Idle : Система включена
+
+state "Основное рабочее состояние" as Ready {
+    [*] --> DisplayTunnelInfo : Поезд\nв туннеле
+    [*] --> DisplayStationInfo : Поезд\nна станции
+
+    DisplayTunnelInfo --> DisplayStationInfo
+    DisplayStationInfo --> DisplayTunnelInfo
+    DisplayStationInfo --> DisplayFinalStationInfo : Поезд прибывает\nна конечную
+}
+
+state "Режим отображения\nинформации на станции" as DisplayStationInfo {
+    [*] --> ShowCurrentStation
+    ShowCurrentStation --> ShowTransferOptions : Станция\nс пересадкой
+    ShowTransferOptions --> ShowNextStation : Указание\nследующей станции
+    ShowNextStation --> ShowDestination : Показ\nконечной
+    ShowDestination --> ShowCurrentStation : Обновление\nинформации
+}
+
+state "Режим отображения информации\nна конечной станции" as DisplayFinalStationInfo {
+    [*] --> ShowCurrentStation
+    ShowCurrentStation --> ShowTransferOptions : Станция\nс пересадкой
+    ShowTransferOptions --> EndMessage : Показ сообщения\nо завершении
+    EndMessage --> Idle : Система готова\nк новому маршруту
+}
+
+state "Режим отображения\nинформации в туннеле" as DisplayTunnelInfo {
+    [*] --> ShowingTime
+    ShowingTime --> ShowingTemperature : Обновление\nпараметров
+    ShowingTemperature --> ShowingStationInfo : Обновление\nближайшей станции
+    ShowingStationInfo --> ShowingAd : Обновление\nрекламы
+    ShowingAd --> ShowingTime : Циклический\nпереход
+}
+
+Ready --> EmergencyStop : Сигнал\nостановки
+EmergencyStop : "Поезд скоро отправится"
+EmergencyStop --> Ready : Возобновление\nдвижения
+
+Ready --> UpdateSettings : Обновление\nданных
+UpdateSettings --> Ready
+
+Ready --> [*] : Отключение\nсистемы
+@enduml

@@ -1,0 +1,96 @@
+@startuml
+actor "Машинист\nпоезда" as Driver
+actor "Сервисная\nслужба" as ServiceStaff
+participant "Система табло" as DisplaySystem
+participant "Экран" as Screen
+participant "Датчик\nтемпературы" as TempSensor
+participant "Датчик\nположения" as PositionSensor
+database "База\nданных" as Database
+
+== Загрузка данных перед запуском поезда ==
+ServiceStaff -> DisplaySystem : Загрузить маршруты и станции
+ServiceStaff++
+DisplaySystem++
+DisplaySystem -> Database : Обновить сведения о станциях и маршрутах
+Database++
+Database -> Database : Выполнение запроса
+Database --> DisplaySystem : Подтверждение загрузки
+Database--
+
+ServiceStaff -> DisplaySystem : Загрузить рекламные сообщения
+ServiceStaff--
+DisplaySystem -> Database : Обновить рекламные сообщения
+Database++
+Database -> Database : Выполнение запроса
+Database --> DisplaySystem : Подтверждение загрузки
+Database--
+
+|||
+== Отображение информации в движении (туннель) ==
+group Каждый экран
+  DisplaySystem -> TempSensor : Запрос температуры
+  TempSensor++
+  TempSensor -> TempSensor : Выполнение запроса
+  TempSensor --> DisplaySystem : Получение данных о текущей температуре
+  TempSensor--
+
+  DisplaySystem -> PositionSensor : Запрос ближайшей станции
+  PositionSensor++
+  PositionSensor -> PositionSensor : Выполнение запроса
+  PositionSensor --> DisplaySystem : Получение данных о ближайшей станции
+  PositionSensor--
+
+  DisplaySystem -> Screen : Обновить данные
+  Screen++
+  Screen -> Screen : Выполнение запроса
+  Screen --> DisplaySystem : Подтверждение обновления
+  Screen--
+end
+|||
+== На промежуточной станции ==
+PositionSensor -> DisplaySystem : Сигнал о прибытии на станцию
+PositionSensor++
+DisplaySystem -> Database : Получить данные о пересадках
+Database++
+Database -> Database : Выполнение запроса
+Database --> DisplaySystem : Список пересадок
+Database--
+
+group Каждый экран
+  DisplaySystem -> Screen : Обновить данные
+  Screen++
+  Screen -> Screen : Выполнение запроса
+  Screen --> DisplaySystem : Подтверждение обновления
+  Screen--
+end
+|||
+== На конечной станции ==
+PositionSensor -> DisplaySystem : Сигнал о прибытии на конечную станцию
+PositionSensor--
+group Каждый экран
+  DisplaySystem -> Screen : Вывести данные
+  Screen++
+  Screen -> Screen : Выполнение запроса
+  Screen --> DisplaySystem : Подтверждение обновления
+  Screen--
+end
+|||
+== Незапланированная остановка ==
+Driver -> DisplaySystem : Переключить в режим предупреждения
+Driver++
+DisplaySystem -> Screen : Вывести сообщение "Поезд скоро отправится, сохраняйте спокойствие"
+Screen++
+Screen -> Screen : Выполнение запроса
+Screen --> DisplaySystem : Подтверждение вывода
+Screen--
+
+Driver -> DisplaySystem : Возобновить обычный режим
+Driver--
+DisplaySystem -> Screen : Обновить информацию о маршруте
+Screen++
+Screen -> Screen : Выполнение запроса
+Screen --> DisplaySystem : Подтверждение вывода
+Screen--
+DisplaySystem--
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+actor "Сотрудник" as Employee
+actor "Менеджер" as Manager
+actor "Администратор" as Admin
+
+usecase "Создать задание" as UC_CreateTask
+usecase "Назначить задание себе" as UC_AssignTaskSelf
+usecase "Назначить задание сотруднику" as UC_AssignTaskEmployee
+usecase "Изменить задание" as UC_EditTask
+usecase "Пометить задание как выполненное" as UC_CompleteTask
+usecase "Удалить завершённые задания через 12 месяцев" as UC_DeleteOldTasks
+usecase "Просмотреть задание" as UC_ViewTask
+usecase "Просмотреть календарь" as UC_ViewCalendar
+usecase "Генерировать отчёт" as UC_GenerateReport
+usecase "Добавить/удалить пользователя" as UC_ManageUsers
+usecase "Поиск клиентов и контактов" as UC_SearchClients
+
+Employee -up-|> Manager
+
+'Manager -up-|> Employee
+Admin -up-|> Manager
+
+Employee --> UC_CreateTask
+Employee --> UC_AssignTaskSelf
+Employee --> UC_CompleteTask
+Employee --> UC_ViewTask
+Employee --> UC_EditTask
+Employee --> UC_ViewCalendar
+Employee --> UC_SearchClients
+
+Manager --> UC_AssignTaskEmployee
+Manager --> UC_GenerateReport
+Manager --> UC_SearchClients
+
+Admin --> UC_ManageUsers
+Admin --> UC_DeleteOldTasks
+
+@enduml
